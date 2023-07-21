@@ -40,6 +40,7 @@ const doneTask = function (e) {
 };
 
 const deleteTask = function (e) {
+  if (!e.target.matches("ion-icon")) return;
   const index = e.target.dataset.index;
   tasks.splice(index, 1);
   createTask(tasks);
