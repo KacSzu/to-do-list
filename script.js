@@ -1,8 +1,8 @@
 const input = document.querySelector(".to-do-input");
 const form = document.querySelector(`.form`);
 const list = document.querySelector(`.list`);
-const deleteIcon = document.querySelector(".delete-task");
 const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
 const createTask = function (tasks = []) {
   list.innerHTML = tasks
     .map((task, i) => {
@@ -18,6 +18,9 @@ const createTask = function (tasks = []) {
     .join("");
 };
 
+const saveToLocalStorage = function () {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+};
 const getTask = function (e) {
   e.preventDefault();
   const taskValue = input.value;
@@ -27,28 +30,25 @@ const getTask = function (e) {
     taskValue,
   };
   tasks.push(task);
-  localStorage.setItem("tasks", JSON.stringify(tasks));
+  saveToLocalStorage();
 
   createTask(tasks);
   input.value = "";
 };
-const doneTask = function (e) {
-  if (!e.target.matches("input")) return;
-  const index = e.target.dataset.index;
-  tasks[index].done = !tasks[index].done;
-  localStorage.setItem("tasks", JSON.stringify(tasks));
+const handleDeleteAndDone = function (e) {
+  if (e.target.matches("input")) {
+    const index = e.target.dataset.index;
+    tasks[index].done = !tasks[index].done;
+    saveToLocalStorage();
+  }
+  if (e.target.matches("ion-icon")) {
+    const index = e.target.dataset.index;
+    tasks.splice(index, 1);
+    createTask(tasks);
+    saveToLocalStorage();
+  }
 };
-
-const deleteTask = function (e) {
-  if (!e.target.matches("ion-icon")) return;
-  const index = e.target.dataset.index;
-  tasks.splice(index, 1);
-  createTask(tasks);
-  localStorage.setItem("tasks", JSON.stringify(tasks));
-};
-
 
 form.addEventListener("submit", getTask);
-list.addEventListener("click", doneTask);
-list.addEventListener("click", deleteTask);
-tasks.forEach((task) => createTask(tasks, task.taskValue));
+list.addEventListener("click", handleDeleteAndDone);
+createTask(tasks);
